@@ -9,12 +9,18 @@
     "test": "node test_system.js"
   },
   "engines": {
-    "node": "22.x"
+    "node": ">=20.0.0"
   },
-  "keywords": ["rifa", "sorteio", "rifas-online", "bilhetes"],
+  "keywords": [
+    "rifa",
+    "sorteio",
+    "rifas-online",
+    "bilhetes"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@libsql/client": "^0.18.0",
     "cors": "^2.8.5",
     "express": "^4.21.2"
   }
