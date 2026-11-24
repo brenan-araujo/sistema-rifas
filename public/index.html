@@ -49,8 +49,12 @@
     <div id="campaignCard" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8 transition-all">
       <div class="grid grid-cols-1 md:grid-cols-12 gap-0">
         <!-- Imagem do Prêmio -->
-        <div class="md:col-span-5 bg-slate-100 relative min-h-[220px] md:min-h-[300px]">
-          <img id="campImage" src="" alt="Prêmio" class="w-full h-full object-cover">
+        <div class="md:col-span-5 bg-gradient-to-br from-indigo-50 to-slate-100 relative min-h-[220px] md:min-h-[300px] flex items-center justify-center overflow-hidden">
+          <img id="campImage" src="" alt="Prêmio da Rifa" class="w-full h-full object-cover hidden" onerror="this.classList.add('hidden'); document.getElementById('campImageFallback').classList.remove('hidden');">
+          <div id="campImageFallback" class="flex flex-col items-center justify-center text-center p-6 text-slate-400">
+            <span class="text-6xl mb-2">🎁</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Prêmio da Rifa</span>
+          </div>
           <div class="absolute top-3 left-3">
             <span id="campStatusBadge" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500 text-white shadow-md">
               Ativa

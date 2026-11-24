@@ -8,6 +8,9 @@
     "dev": "node --watch server.js",
     "test": "node test_system.js"
   },
+  "engines": {
+    "node": "22.x"
+  },
   "keywords": ["rifa", "sorteio", "rifas-online", "bilhetes"],
   "author": "",
   "license": "ISC",

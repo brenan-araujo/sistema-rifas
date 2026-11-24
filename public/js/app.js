@@ -113,7 +113,15 @@ function selectCampaign(camp) {
 
   // Imagem
   const imgEl = document.getElementById('campImage');
-  imgEl.src = camp.image_url || 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=800&q=80';
+  const fallbackEl = document.getElementById('campImageFallback');
+  if (camp.image_url && camp.image_url.trim()) {
+    imgEl.src = camp.image_url;
+    imgEl.classList.remove('hidden');
+    if (fallbackEl) fallbackEl.classList.add('hidden');
+  } else {
+    imgEl.classList.add('hidden');
+    if (fallbackEl) fallbackEl.classList.remove('hidden');
+  }
 
   // Status Badge
   const badgeEl = document.getElementById('campStatusBadge');

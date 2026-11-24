@@ -484,13 +484,18 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Inicia o servidor
-app.listen(PORT, () => {
-  console.log(`====================================================`);
-  console.log(`  SISTEMA DE RIFAS ONLINE INICIADO COM SUCESSO!     `);
-  console.log(`  Site Público:  http://localhost:${PORT}             `);
-  console.log(`  Painel Admin:  http://localhost:${PORT}/admin       `);
-  console.log(`  Login padrão:  admin                                `);
-  console.log(`  Senha padrão:  admin123                             `);
-  console.log(`====================================================`);
-});
+// Exporta o app para Vercel Serverless
+module.exports = app;
+
+// Inicia o servidor local se não estiver no Vercel
+if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  app.listen(PORT, () => {
+    console.log(`====================================================`);
+    console.log(`  SISTEMA DE RIFAS ONLINE INICIADO COM SUCESSO!     `);
+    console.log(`  Site Público:  http://localhost:${PORT}             `);
+    console.log(`  Painel Admin:  http://localhost:${PORT}/admin       `);
+    console.log(`  Login padrão:  admin                                `);
+    console.log(`  Senha padrão:  admin123                             `);
+    console.log(`====================================================`);
+  });
+}

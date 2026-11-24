@@ -3,8 +3,9 @@ const path = require('node:path');
 const fs = require('node:fs');
 const crypto = require('node:crypto');
 
-// Garante o diretório do banco de dados
-const dataDir = path.join(__dirname, 'data');
+// Garante o diretório do banco de dados (no Vercel utiliza /tmp pois o disco raiz é somente leitura)
+const isVercel = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+const dataDir = isVercel ? '/tmp' : path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
