@@ -1,32 +1,32 @@
 // Ponto de entrada das funções Serverless no Vercel
 const app = require('../server.js');
 
-module.exports = (req, res) => {
-  // Normalização de rota para compatibilidade com Vercel Serverless
-  const matchedPath = 
-    req.headers['x-matched-path'] || 
-    req.headers['x-vercel-matched-path'] || 
-    req.headers['x-now-route-matches'] || 
-    req.headers['x-forwarded-uri'] ||
-    req.originalUrl;
+function getNormalizedUrl(rawUrl, headers = {}) {
+  try {
+    const parsed = new URL(rawUrl, 'http://localhost');
+    const pathParam = parsed.searchParams.get('__path');
 
-  let targetPath = null;
-  if (matchedPath && matchedPath.startsWith('/api')) {
-    targetPath = matchedPath;
-  } else if (req.originalUrl && req.originalUrl.startsWith('/api')) {
-    targetPath = req.originalUrl;
-  } else if (req.url && !req.url.startsWith('/api')) {
-    targetPath = '/api' + (req.url.startsWith('/') ? req.url : '/' + req.url);
-  }
-
-  if (targetPath) {
-    const queryIdx = req.url.indexOf('?');
-    if (queryIdx !== -1 && !targetPath.includes('?')) {
-      targetPath += req.url.slice(queryIdx);
+    if (pathParam !== null && pathParam !== undefined) {
+      parsed.searchParams.delete('__path');
+      const remainingSearch = parsed.searchParams.toString();
+      const cleanPath = pathParam.startsWith('/') ? pathParam : '/' + pathParam;
+      return '/api' + (cleanPath === '/' ? '' : cleanPath) + (remainingSearch ? '?' + remainingSearch : '');
     }
-    req.url = targetPath;
-  }
 
+    const matched = headers['x-matched-path'] || headers['x-vercel-matched-path'];
+    if (matched && matched.startsWith('/api') && matched !== '/api') {
+      return matched;
+    }
+
+    return rawUrl;
+  } catch {
+    return rawUrl;
+  }
+}
+
+module.exports = (req, res) => {
+  req.url = getNormalizedUrl(req.url, req.headers);
   return app(req, res);
 };
+
 

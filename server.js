@@ -19,20 +19,32 @@ const PORT = process.env.PORT || 3030;
 app.use(cors());
 app.use(express.json());
 
+function getNormalizedUrl(rawUrl, headers = {}) {
+  try {
+    const parsed = new URL(rawUrl, 'http://localhost');
+    const pathParam = parsed.searchParams.get('__path');
+
+    if (pathParam !== null && pathParam !== undefined) {
+      parsed.searchParams.delete('__path');
+      const remainingSearch = parsed.searchParams.toString();
+      const cleanPath = pathParam.startsWith('/') ? pathParam : '/' + pathParam;
+      return '/api' + (cleanPath === '/' ? '' : cleanPath) + (remainingSearch ? '?' + remainingSearch : '');
+    }
+
+    const matched = headers['x-matched-path'] || headers['x-vercel-matched-path'];
+    if (matched && matched.startsWith('/api') && matched !== '/api') {
+      return matched;
+    }
+
+    return rawUrl;
+  } catch {
+    return rawUrl;
+  }
+}
+
 // Normalização de URL para compatibilidade Serverless na Vercel
 app.use((req, res, next) => {
-  const matchedPath =
-    req.headers['x-matched-path'] ||
-    req.headers['x-vercel-matched-path'] ||
-    req.headers['x-now-route-matches'] ||
-    req.headers['x-forwarded-uri'] ||
-    req.originalUrl;
-
-  if (matchedPath && matchedPath.startsWith('/api') && req.url !== matchedPath) {
-    const queryIdx = req.url.indexOf('?');
-    const query = queryIdx !== -1 && !matchedPath.includes('?') ? req.url.slice(queryIdx) : '';
-    req.url = matchedPath + query;
-  }
+  req.url = getNormalizedUrl(req.url, req.headers);
   next();
 });
 
