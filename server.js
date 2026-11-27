@@ -18,6 +18,38 @@ const PORT = process.env.PORT || 3030;
 
 app.use(cors());
 app.use(express.json());
+
+// Normalização de URL para compatibilidade Serverless na Vercel
+app.use((req, res, next) => {
+  const matchedPath =
+    req.headers['x-matched-path'] ||
+    req.headers['x-vercel-matched-path'] ||
+    req.headers['x-now-route-matches'] ||
+    req.headers['x-forwarded-uri'] ||
+    req.originalUrl;
+
+  if (matchedPath && matchedPath.startsWith('/api') && req.url !== matchedPath) {
+    const queryIdx = req.url.indexOf('?');
+    const query = queryIdx !== -1 && !matchedPath.includes('?') ? req.url.slice(queryIdx) : '';
+    req.url = matchedPath + query;
+  }
+  next();
+});
+
+// Endpoint de status / health check da API
+app.get('/api', (req, res) => {
+  res.json({
+    status: 'online',
+    app: 'Sistema de Rifas',
+    version: '1.0.0',
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get('/api/ping', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware de Autenticação para Rotas Admin
@@ -529,7 +561,11 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
+// Apenas rotas não-API devem servir o index.html como fallback de SPA
 app.get('*', (req, res) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ error: `Endpoint da API não encontrado: ${req.method} ${req.originalUrl || req.url}` });
+  }
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 

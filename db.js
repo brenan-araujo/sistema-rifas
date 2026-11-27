@@ -105,6 +105,8 @@ async function initDatabase() {
     // Unifica status antigos se houver
     await client.execute("UPDATE tickets SET status = 'reserved' WHERE status = 'paid';");
 
+    isInitialized = true;
+
     // Garante o usuário admin padrão
     const userCheck = await queryOne('SELECT COUNT(*) as count FROM users');
     if (userCheck && userCheck.count === 0) {
@@ -136,8 +138,6 @@ async function initDatabase() {
 
       console.log('[DB] Campanha inicial criada com sucesso no Turso!');
     }
-
-    isInitialized = true;
   })();
 
   return initPromise;
